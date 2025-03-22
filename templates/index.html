@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Homework Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="top-banner">
+        <div class="banner-content">
+            <div class="uhf-brand">UHF</div>
+            <div class="class-label">Class 9th</div>
+        </div>
+        {% if not request.endpoint in ['admin', 'admin_login'] %}
+            <a href="{{ url_for('admin') }}" class="admin-button">Admin Panel</a>
+        {% endif %}
+    </div>
+
+    <div id="disclaimer-popup" class="popup-overlay">
+        <div class="popup-content">
+            <h3>Welcome to the Homework Portal</h3>
+            <p>This website is built by Samar and is 100% safe to view the homework/classwork materials.</p>
+            <div class="checkbox-container">
+                <input type="checkbox" id="dont-show-again">
+                <label for="dont-show-again">Don't show this message again</label>
+            </div>
+            <button class="close-btn" onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <footer class="site-footer">
+        <p>© 2025 UHF Homework Portal. Created by Samar</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

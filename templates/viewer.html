@@ -1,0 +1,17 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <h1>{{ subject }} - {{ chapter }}</h1>
+        <div class="button-group">
+            <a href="{{ url_for('subject', subject=subject) }}" class="back-button">Back to Chapters</a>
+            <a href="{{ pdf_file }}" download class="download-button">Download PDF</a>
+        </div>
+    </header>
+    
+    <div class="pdf-container">
+        <iframe src="{{ pdf_file }}" type="application/pdf"></iframe>
+    </div>
+</div>
+{% endblock %}

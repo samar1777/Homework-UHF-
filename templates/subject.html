@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }} Chapters</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% extends "index.html" %}
+
+    {% block content %}
+    <div class="container">
+        <div class="main-header">
+            <div class="header-content">
+                <h1>{{ subject }}</h1>
+                <p class="tagline">Select a chapter to view</p>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search chapters...">
+        </div>
+
+        <div class="chapters-grid">
+            {% if chapters %}
+                {% for chapter in chapters %}
+                <a href="{{ url_for('view_pdf', subject=subject, chapter=chapter) }}" class="chapter-card">
+                    <div class="subject-icon">{{ chapter[0] }}</div>
+                    <h2>{{ chapter }}</h2>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="no-chapters">
+                    <h2>No chapters available</h2>
+                    <p>Check back later for new content.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="{{ url_for('home') }}" class="back-button">Back to Subjects</a>
+        </div>
+    </div>
+    {% endblock %}
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="main-header">
+        <div class="header-content">
+            <h1>Welcome to UHF Homework Portal</h1>
+            <p class="tagline">Access all your study materials in one place</p>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search subjects...">
+    </div>
+
+    <div class="subjects-grid">
+        {% for subject in subjects %}
+        <a href="{{ url_for('subject', subject=subject) }}" class="subject-card">
+            <div class="subject-icon">{{ subject[0] }}</div>
+            <h2>{{ subject }}</h2>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

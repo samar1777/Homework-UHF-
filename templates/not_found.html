@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Not Available</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="not-found-container">
+            <h1>Chapter Not Available</h1>
+            <p>Sorry, this chapter is not available yet. It might not have been covered in school or hasn't been uploaded.</p>
+            <div class="navigation-buttons">
+                <a href="{{ url_for('home') }}" class="back-button">Back to Home</a>
+                <a href="{{ url_for('subject', subject=request.view_args.get('subject')) }}" class="back-button">Back to Chapters</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
