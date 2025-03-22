@@ -14,7 +14,7 @@ United Homework Federation (UHF) is an AI-powered Python project designed to str
 1. **Clone the Repository**
    ```sh
    git clone https://github.com/samar1777/Homework-UHF-
-   cd UHF
+   cd Homework-UHF-
    ```
 2. **Install Dependencies**
    ```sh
