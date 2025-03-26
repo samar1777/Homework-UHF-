@@ -38,7 +38,7 @@ We welcome contributions! To contribute:
 ## Contact
 For any inquiries or support, reach out via:
 - GitHub Issues
-- Email: your-email@example.com
+- Email: sinfo5096@gmail.com
 
 ---
 
