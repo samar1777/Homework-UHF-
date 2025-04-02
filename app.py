@@ -32,7 +32,7 @@ def admin_required(f):
 @app.route('/')
 def home():
     # Default list of subjects to ensure we always have content
-    default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'IT']
+    default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'IT', 'English']
     
     # Fetch subjects from server
     try:
