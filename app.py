@@ -32,7 +32,7 @@ def admin_required(f):
 @app.route('/')
 def home():
     # Default list of subjects to ensure we always have content
-    default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'IT', 'English']
+    default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'English', 'IT']
     
     # Fetch subjects from server
     try:
@@ -127,7 +127,23 @@ def admin():
             
             return redirect(url_for('admin'))
     
-    return render_template('admin.html')
+    # Get the list of subjects from the server or use default subjects
+    default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'English', 'IT']
+    try:
+        response = requests.get(f"{SERVER_URL}/api/subjects")
+        if response.status_code == 200:
+            server_subjects = response.json().get('subjects', [])
+            # Only use server subjects if the list is not empty
+            if server_subjects and len(server_subjects) > 1:
+                subjects = server_subjects
+            else:
+                subjects = default_subjects
+        else:
+            subjects = default_subjects
+    except:
+        subjects = default_subjects
+        
+    return render_template('admin.html', subjects=subjects)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
