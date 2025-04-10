@@ -25,6 +25,20 @@ body {
     flex-direction: column;
 }
 
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .top-banner {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
     padding: 12px 15px;
@@ -235,6 +249,16 @@ body {
     margin-top: auto;
 }
 
+.site-footer p {
+    margin: 0;
+}
+
+.site-footer .author {
+    font-weight: 600;
+    color: #ffeb3b;
+    display: inline-block;
+}
+
 /* Update admin button styles */
 .admin-button, .back-button, .download-button, .close-btn, .submit-button {
     background: var(--primary-color);
@@ -265,6 +289,12 @@ header {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+header h1 {
+    margin: 0;
+    color: #333;
 }
 
 .search-container {
@@ -339,27 +369,45 @@ header {
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
+    background: white;
     border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    padding: 8px 12px;
+    border-radius: 10px;
+    padding: 12px;
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    margin-top: 5px;
+    font-size: 1rem;
+    color: #333;
+}
+
+textarea#message {
+    min-height: 120px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    resize: vertical;
 }
 
 .submit-button {
-    background: var(--primary-color);
+    background-color: #3498db;
     color: white;
-    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    padding: 10px 15px;
+    border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
+}
+
+.submit-button:hover {
+    background-color: #2980b9;
 }
 
 .admin-login-form {
@@ -380,16 +428,30 @@ header {
 }
 
 .back-button {
-    background: #fff;
-    border: 2px solid var(--primary-color);
-    padding: 8px 16px;
-    border-radius: 5px;
-    font-size: clamp(0.9rem, 3vw, 1rem);
-    white-space: nowrap;
+    background-color: rgb(33, 154, 82);
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.sync-button {
+    background-color: #2ecc71;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    margin: 5px;
 }
 
 .flash-messages {
     margin: 20px 0;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
 }
 
 .error-message {
@@ -401,11 +463,11 @@ header {
 }
 
 .success-message {
-    background: #51cf66;
-    color: white;
+    background-color: #d4edda;
+    color: #155724;
     padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
+    border-radius: 4px;
+    margin: 5px 0;
 }
 
 select {
@@ -547,12 +609,66 @@ p { font-size: clamp(0.9rem, 3vw, 1rem); }
         margin: 20px auto;
         padding: 15px;
     }
+    
+    /* Fix for request form on mobile */
+    .request-form {
+        padding: 15px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .request-form h2 {
+        font-size: 1.4rem;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .request-form p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .request-form .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .request-form .form-group label {
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+    
+    .request-form .form-group input,
+    .request-form .form-group select {
+        padding: 8px 10px;
+        font-size: 16px;
+    }
+    
+    .request-form .form-group textarea {
+        padding: 8px 10px;
+        min-height: 80px;
+        max-height: 120px;
+    }
+    
+    .request-form-controls {
+        margin-top: 10px;
+    }
+    
+    .form-close-btn {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .request-form-container {
+        align-items: center;
+        padding-top: 0;
+    }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
     :root {
-        --secondary-color: #1a1a1a;
+        --secondary-color: hwb(0 10% 90%);
         --text-color: #ffffff;
     }
 
@@ -565,7 +681,7 @@ p { font-size: clamp(0.9rem, 3vw, 1rem); }
     }
 
     #searchInput {
-        background: #2d2d2d;
+        background: rgb(34, 142, 78);
         color: #ffffff;
     }
 
@@ -644,91 +760,709 @@ html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #e41212;
+    background-color: white;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 15px;
     max-width: 400px;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+}
+
+.popup-content h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.popup-content p {
+    color: #444;
+    margin-bottom: 20px;
+}
+
+/* Fix request message display */
+.request-message {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.request-subject {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+/* Request Form Styles */
+.request-form-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.request-form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    position: relative;
+    animation: slide-up 0.3s ease-out;
+    margin: 20px auto;
+}
+
+.request-form h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
     text-align: center;
 }
 
-.checkbox-container {
+.request-form p {
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.form-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.form-close-btn:hover {
+    color: var(--accent-color);
+}
+
+.request-form-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.request-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    z-index: 999;
+}
+
+.request-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+}
+
+/* Update Notification Styles */
+.update-popup {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 350px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+    overflow: hidden;
+    z-index: 1000;
+    flex-direction: column;
+}
+
+.update-header {
+    background: var(--primary-color);
+    padding: 12px 20px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.update-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.update-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.update-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.update-content {
+    padding: 15px 20px;
+    color: black;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.update-content p {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+/* Notification permission prompt styles */
+.notification-prompt {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    z-index: 1000;
+    max-width: 350px;
+    animation: slide-up 0.3s ease-out;
+}
+
+/* Add mobile-specific prompt styling */
+.notification-prompt.mobile-prompt {
+    animation: fade-in-up 0.5s ease-out;
+}
+
+/* Style for when notification prompt is active */
+body.has-notification-prompt:after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 999; /* Below the prompt but above other content */
+    animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.notification-prompt-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.notification-prompt-icon {
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.notification-prompt-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.notification-prompt-message {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.notification-prompt-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.notification-prompt-allow,
+.notification-prompt-dismiss {
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.notification-prompt-allow {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.notification-prompt-allow:hover {
+    background-color: var(--primary-dark);
+}
+
+.notification-prompt-dismiss {
+    background-color: #f1f1f1;
+    color: #555;
+}
+
+.notification-prompt-dismiss:hover {
+    background-color: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .notification-prompt {
+        background-color: #2d2d2d;
+        color: white;
+    }
+    
+    .notification-prompt-title {
+        color: #fff;
+    }
+    
+    .notification-prompt-message {
+        color: #ddd;
+    }
+    
+    .notification-prompt-dismiss {
+        background-color: #444;
+        color: #eee;
+    }
+    
+    .notification-prompt-dismiss:hover {
+        background-color: #555;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .notification-prompt {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        max-width: none;
+        padding: 20px;
+        z-index: 2000; /* Extra high z-index on mobile */
+    }
+    
+    .notification-prompt.mobile-prompt {
+        bottom: 50%; /* Center vertically */
+        transform: translateY(50%);
+        max-width: 85%;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        width: 85%;
+    }
+    
+    /* Make the notification buttons more tappable on mobile */
+    .notification-prompt-allow,
+    .notification-prompt-dismiss {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-width: 100px;
+    }
+    
+    .notification-prompt-actions {
+        margin-top: 15px;
+    }
+    
+    .notification-prompt-title {
+        font-size: 18px;
+    }
+    
+    .notification-prompt-message {
+        font-size: 16px;
+    }
+}
+
+/* Animation classes */
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-out-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fade-in-up 0.5s ease forwards;
+}
+
+.fade-out-down {
+    animation: fade-out-down 0.5s ease forwards;
+}
+
+/* Notification Badge */
+.notification-badge {
+    display: none;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 22px;
+    height: 22px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.requests-btn {
+    position: relative;
+}
+
+/* Success notification */
+.notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.5s;
+    max-width: 90%;
+    width: auto;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.notification.success {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.notification.admin-notification {
+    background-color: #3498db;
+    color: white;
+}
+
+.notification.site-notification {
+    background-color: #f39c12;
+    color: white;
+    right: 20px;
+    left: auto;
+    transform: none;
+    max-width: 350px;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-content {
+    margin-right: 20px;
+}
+
+.notification-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+.notification.fade-out {
+    opacity: 0;
+}
+
+/* Remove notification prompt styles that are no longer needed */
+.notification-prompt {
+    display: none;
+}
+
+/* Admin features */
+.admin-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin: 15px 0;
 }
 
-.close-btn {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.request-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-/* Update button styles */
-.admin-button, .back-button, .download-button, .close-btn, .submit-button {
-    background: var(--primary-color);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    text-decoration: none;
+.request-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.request-item:last-child {
+    border-bottom: none;
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.request-name {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.request-date {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.request-subject {
     font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    display: inline-block;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+    margin-bottom: 8px;
+    color: #555;
 }
 
-.admin-button:hover, .back-button:hover, .download-button:hover, 
-.close-btn:hover, .submit-button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
-}
-
-/* Update card styles */
-.subject-card, .chapter-card {
-    background: rgb(33, 154, 82);
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-color);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.subject-card:hover, .chapter-card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.2);
-}
-
-/* Search input styling */
-#searchInput {
-    background: white;
-    color: var(--text-color);
-    padding: 15px 25px;
-    border-radius: 30px;
-    border: 2px solid var(--primary-color);
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    display: block;
-    font-size: 1rem;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
-}
-
-/* Add form styling */
-.form-group input, .form-group select {
-    background: white;
-    border: 2px solid var(--primary-color);
-    border-radius: 10px;
+.request-message {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
     padding: 12px;
-    width: 100%;
-    margin-top: 5px;
-    font-size: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.request-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.request-tab-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+    .update-popup {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+        top: 70px; /* Move down to avoid overlapping with banner */
+    }
+
+    .request-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px; /* Smaller icon */
+    }
+    
+    /* Fix for request form on mobile */
+    .request-form {
+        padding: 15px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .request-form h2 {
+        font-size: 1.4rem;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .request-form p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .request-form .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .request-form .form-group label {
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+    
+    .request-form .form-group input,
+    .request-form .form-group select {
+        padding: 8px 10px;
+        font-size: 16px;
+    }
+    
+    .request-form .form-group textarea {
+        padding: 8px 10px;
+        min-height: 80px;
+        max-height: 120px;
+    }
+    
+    .request-form-controls {
+        margin-top: 10px;
+    }
+    
+    .form-close-btn {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .request-form-container {
+        align-items: center;
+        padding-top: 0;
+    }
+    
+    /* Ensure only one notification is visible at a time */
+    .notification {
+        z-index: 1100; /* Higher than other notifications */
+    }
+    
+    /* Fix form input sizing on mobile */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 10px;
+    }
+    
+    .notification.site-notification {
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        max-width: none;
+        width: calc(100% - 40px);
+    }
+}
+
+/* Fix for multiple notifications */
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-out-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Ensure only one is visible */
+.notification, .update-popup, .notification-prompt {
+    isolation: isolate;
+}
+
+/* Specific z-index ordering */
+.update-popup { z-index: 1000; }
+.notification-prompt { z-index: 1002; }
+.notification { z-index: 1001; }
+
+/* Fix for desktop notifications */
+@media screen and (min-width: 769px) {
+    .notification.site-notification {
+        top: 80px;
+        bottom: auto;
+    }
+    
+    .update-popup {
+        max-width: 350px;
+        top: 20px;
+        right: 20px;
+    }
 }
