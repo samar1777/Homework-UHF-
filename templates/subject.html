@@ -42,7 +42,27 @@
             <a href="{{ url_for('home') }}" class="back-button">Back to Subjects</a>
         </div>
     </div>
+
+    <style>
+    /* Stronger inline styles to ensure card colors are consistent */
+    .chapters-grid a.chapter-card {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        border: 2px solid transparent !important;
+    }
+    .chapters-grid a.chapter-card:hover {
+        background-color: var(--primary-dark) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    .chapter-card h2 {
+        color: white !important;
+    }
+    .subject-icon {
+        background: white !important;
+        color: var(--primary-color) !important;
+    }
+    </style>
     {% endblock %}
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Script is already included in the base template -->
 </body>
 </html>
