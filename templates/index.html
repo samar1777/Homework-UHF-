@@ -6,6 +6,7 @@
     <title>{% block title %}Homework Portal{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="top-banner">
@@ -13,7 +14,7 @@
             <div class="uhf-brand">UHF</div>
             <div class="class-label">Class 9th</div>
         </div>
-        {% if not request.endpoint in ['admin', 'admin_login'] %}
+        {% if not request.endpoint in ['admin', 'admin_login', 'view_requests', 'create_update'] %}
             <a href="{{ url_for('admin') }}" class="admin-button">Admin Panel</a>
         {% endif %}
     </div>
@@ -29,11 +30,69 @@
             <button class="close-btn" onclick="closePopup()">OK</button>
         </div>
     </div>
+    
+    {% if latest_update %}
+    <div id="update-popup" class="update-popup" data-update-id="{{ latest_update.id }}">
+        <div class="update-header">
+            <h3>📢 {{ latest_update.title }}</h3>
+            <button class="update-close-btn" onclick="closeUpdatePopup()">×</button>
+        </div>
+        <div class="update-content">
+            <p>{{ latest_update.content }}</p>
+        </div>
+    </div>
+    {% endif %}
 
     {% block content %}{% endblock %}
 
+    <!-- Request Form -->
+    <div id="request-form-container" class="request-form-container">
+        <div class="request-form">
+            <button class="form-close-btn" onclick="closeRequestForm()">×</button>
+            <h2>Request Material</h2>
+            <p>Let us know what study material you need</p>
+            <form id="request-form" onsubmit="return submitRequest()">
+                <div class="form-group">
+                    <label for="name">Your Name*</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email (optional)</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="request-subject">Subject</label>
+                    <select id="request-subject" name="subject">
+                        <option value="">Select Subject (optional)</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Science">Science</option>
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Social Studies">Social Studies</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Request*</label>
+                    <textarea id="message" name="message" rows="4" required></textarea>
+                </div>
+                <div class="request-form-controls">
+                    <button type="button" class="back-button" onclick="closeRequestForm()">Cancel</button>
+                    <button type="submit" class="submit-button">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Request Button (Fixed) -->
+    {% if not request.endpoint in ['admin', 'admin_login', 'view_requests', 'create_update'] %}
+    <button class="request-btn" onclick="showRequestForm()">
+        <i class="fas fa-question"></i>
+    </button>
+    {% endif %}
+
     <footer class="site-footer">
-        <p>© 2025 UHF Homework Portal. Created by Samar</p>
+        <p>© 2024 UHF Homework Portal. Created by <span class="author">Samar</span></p>
     </footer>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
