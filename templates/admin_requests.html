@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Requests - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>User Requests</h1>
+            <div class="button-group">
+                <a href="{{ url_for('admin') }}" class="back-button">Back to Admin</a>
+                <a href="{{ url_for('home') }}" class="back-button">Back to Home</a>
+            </div>
+        </header>
+        
+        <div class="admin-section">
+            <h2>All Requests</h2>
+            
+            {% if requests %}
+            <ul class="request-list">
+                {% for request in requests %}
+                <li class="request-item" style="border-left: 4px solid {% if request.status == 'pending' %}#e74c3c{% elif request.status == 'completed' %}#27ae60{% else %}#3498db{% endif %}; padding-left: 15px;">
+                    <div class="request-header">
+                        <span class="request-name">{{ request.name }}</span>
+                        <span class="request-date">{{ request.timestamp }}</span>
+                    </div>
+                    {% if request.email %}
+                    <div style="margin-bottom: 5px; color: #666;">
+                        <i class="fas fa-envelope"></i> {{ request.email }}
+                    </div>
+                    {% endif %}
+                    {% if request.subject %}
+                    <div class="request-subject">
+                        <strong>Subject:</strong> {{ request.subject }}
+                    </div>
+                    {% endif %}
+                    <div class="request-message">{{ request.message }}</div>
+                    <div class="request-status" style="margin: 10px 0; font-weight: 500; color: {% if request.status == 'pending' %}#e74c3c{% elif request.status == 'completed' %}#27ae60{% else %}#3498db{% endif %};">
+                        <strong>Status:</strong> {{ request.status|capitalize }}
+                    </div>
+                    {% if request.status == 'pending' %}
+                    <div class="request-actions">
+                        <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}">
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit" class="submit-button">Mark as Complete</button>
+                        </form>
+                    </div>
+                    {% elif request.status == 'completed' %}
+                    <div class="request-actions">
+                        <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}">
+                            <input type="hidden" name="status" value="pending">
+                            <button type="submit" class="back-button">Reopen Request</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div style="text-align: center; padding: 30px;">
+                <p>No requests have been submitted yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
