@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 import os
 import sqlite3
@@ -6,6 +6,7 @@ from functools import wraps
 import requests
 import json
 import base64
+import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -14,6 +15,38 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Ensure upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Ensure database exists
+DB_PATH = 'database.db'
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT,
+        message TEXT NOT NULL,
+        subject TEXT,
+        timestamp TEXT NOT NULL,
+        status TEXT DEFAULT 'pending'
+    )
+    ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS updates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        display_until TEXT NOT NULL
+    )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Initialize database on startup
+init_db()
 
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'UHFthebest'
@@ -40,11 +73,11 @@ def home():
         if response.status_code == 200:
             server_subjects = response.json().get('subjects', [])
             # Only use server subjects if the list is not empty
-            if server_subjects and len(server_subjects) > 1:
+            if server_subjects:
                 subjects = server_subjects
             else:
                 subjects = default_subjects
-                print("Server returned empty or single subject list, using default subjects")
+                print("Server returned empty subject list, using default subjects")
         else:
             subjects = default_subjects
             print(f"Failed to get subjects from server: {response.status_code}")
@@ -52,8 +85,18 @@ def home():
         subjects = default_subjects
         print(f"Error fetching subjects: {e}")
     
+    # Make sure we have all the default subjects
+    if subjects:
+        # Add any missing default subjects to ensure they're always shown
+        for default_subject in default_subjects:
+            if default_subject not in subjects:
+                subjects.append(default_subject)
+    
+    # Get latest update for notification
+    latest_update = get_latest_update()
+    
     print(f"Displaying subjects: {subjects}")
-    return render_template('home.html', subjects=subjects)
+    return render_template('home.html', subjects=subjects, latest_update=latest_update)
 
 @app.route('/subject/<subject>')
 def subject(subject):
@@ -142,8 +185,16 @@ def admin():
             subjects = default_subjects
     except:
         subjects = default_subjects
+    
+    # Get all pending requests
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM requests WHERE status = 'pending' ORDER BY timestamp DESC")
+    pending_requests = [dict(row) for row in cursor.fetchall()]
+    conn.close()
         
-    return render_template('admin.html', subjects=subjects)
+    return render_template('admin.html', subjects=subjects, pending_requests=pending_requests)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -210,6 +261,140 @@ def sync_files():
         flash(f"Error connecting to server: {str(e)}")
     
     return redirect(url_for('admin'))
+
+# New endpoints for requests and notifications
+@app.route('/submit_request', methods=['POST'])
+def submit_request():
+    name = request.form.get('name', '')
+    email = request.form.get('email', '')
+    subject = request.form.get('subject', '')
+    message = request.form.get('message', '')
+    
+    if not name or not message:
+        return jsonify({'success': False, 'message': 'Name and message are required'}), 400
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute('''
+            INSERT INTO requests (name, email, subject, message, timestamp) 
+            VALUES (?, ?, ?, ?, ?)
+        ''', (name, email, subject, message, timestamp))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Request submitted successfully'}), 200
+    except Exception as e:
+        print(f"Error submitting request: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred'}), 500
+
+@app.route('/admin/requests', methods=['GET'])
+@admin_required
+def view_requests():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM requests ORDER BY timestamp DESC")
+    all_requests = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return render_template('admin_requests.html', requests=all_requests)
+
+@app.route('/admin/update_request_status/<int:request_id>', methods=['POST'])
+@admin_required
+def update_request_status(request_id):
+    status = request.form.get('status', 'pending')
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE requests SET status = ? WHERE id = ?", (status, request_id))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('view_requests'))
+
+@app.route('/admin/create_update', methods=['GET', 'POST'])
+@admin_required
+def create_update():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        display_days = int(request.form.get('display_days', 7))
+        send_notification = 'send_notification' in request.form
+        
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        display_until = (now + datetime.timedelta(days=display_days)).strftime("%Y-%m-%d %H:%M:%S")
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO updates (title, content, timestamp, display_until) 
+            VALUES (?, ?, ?, ?)
+        ''', (title, content, timestamp, display_until))
+        update_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        flash('Update notification created successfully!')
+        
+        # Add a flag to the response to trigger browser notifications
+        if send_notification:
+            # Create a notification record in the session
+            session['notify_users'] = {
+                'id': update_id,
+                'title': title, 
+                'content': content
+            }
+        
+        return redirect(url_for('admin'))
+    
+    return render_template('create_update.html')
+
+# New route to check for notifications to be sent
+@app.route('/check_notifications')
+def check_notifications():
+    # Check if there are any notifications to be sent
+    if 'notify_users' in session:
+        notification_data = session['notify_users']
+        # Remove it from session so it's only sent once
+        session.pop('notify_users', None)
+        return jsonify(notification_data)
+    return jsonify({'status': 'no_notifications'})
+
+@app.route('/get_pending_requests', methods=['GET'])
+@admin_required
+def get_pending_requests():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) as count FROM requests WHERE status = 'pending'")
+    count = cursor.fetchone()['count']
+    conn.close()
+    
+    return jsonify({'count': count})
+
+def get_latest_update():
+    try:
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM updates 
+            WHERE display_until > ? 
+            ORDER BY timestamp DESC 
+            LIMIT 1
+        ''', (now,))
+        update = cursor.fetchone()
+        conn.close()
+        
+        if update:
+            return dict(update)
+        return None
+    except Exception as e:
+        print(f"Error getting latest update: {e}")
+        return None
 
 if __name__ == '__main__':
     # Ensure upload folder exists
