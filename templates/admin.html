@@ -5,13 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Admin Panel</h1>
-            <a href="{{ url_for('home') }}" class="back-button">Back to Home</a>
-            <a href="{{ url_for('sync_files') }}" class="sync-button">Sync Files from Server</a>
+            <div class="button-group">
+                <a href="{{ url_for('home') }}" class="back-button">Back to Home</a>
+                <a href="{{ url_for('sync_files') }}" class="sync-button">Sync Files from Server</a>
+                <a href="{{ url_for('view_requests') }}" class="back-button request-tab-link">
+                    Requests
+                    <span id="pending-requests-badge" class="notification-badge">
+                        {{ pending_requests|length if pending_requests else "0" }}
+                    </span>
+                </a>
+                <a href="{{ url_for('create_update') }}" class="back-button">Create Update</a>
+            </div>
         </header>
 
         {% with messages = get_flashed_messages() %}
@@ -23,6 +33,38 @@
                 </div>
             {% endif %}
         {% endwith %}
+
+        <!-- Pending Requests Section -->
+        {% if pending_requests %}
+        <div class="admin-section">
+            <h2>Recent Requests ({{ pending_requests|length }})</h2>
+            <ul class="request-list">
+                {% for request in pending_requests[:3] %}
+                <li class="request-item">
+                    <div class="request-header">
+                        <span class="request-name">{{ request.name }}</span>
+                        <span class="request-date">{{ request.timestamp }}</span>
+                    </div>
+                    {% if request.subject %}
+                    <div class="request-subject">Subject: {{ request.subject }}</div>
+                    {% endif %}
+                    <div class="request-message">{{ request.message }}</div>
+                    <div class="request-actions">
+                        <form method="POST" action="{{ url_for('update_request_status', request_id=request.id) }}">
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit" class="submit-button">Mark as Complete</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if pending_requests|length > 3 %}
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{{ url_for('view_requests') }}" class="back-button">View All Requests</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
 
         <div class="admin-form">
             <h2>Upload Study Material</h2>
