@@ -22,4 +22,24 @@
         {% endfor %}
     </div>
 </div>
+
+<style>
+/* Stronger inline styles to ensure card colors are consistent */
+.subjects-grid a.subject-card {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border: 2px solid transparent !important;
+}
+.subjects-grid a.subject-card:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+.subject-card h2 {
+    color: white !important;
+}
+.subject-icon {
+    background: white !important;
+    color: var(--primary-color) !important;
+}
+</style>
 {% endblock %}
