@@ -8,6 +8,9 @@ import json
 import base64
 import datetime
 
+# Server URL configuration - update with your PythonAnywhere URL
+SERVER_URL = 'https://clientserver.pythonanywhere.com'
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'static/uploads'
@@ -50,9 +53,6 @@ init_db()
 
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'UHFthebest'
-
-# Server URL configuration - update with your PythonAnywhere URL
-SERVER_URL = 'https://clientserver.pythonanywhere.com'
 
 def admin_required(f):
     @wraps(f)
@@ -322,36 +322,106 @@ def create_update():
         display_days = int(request.form.get('display_days', 7))
         send_notification = 'send_notification' in request.form
         
+        if not title or not content:
+            flash('Title and content are required!')
+            return redirect(url_for('create_update'))
+        
         now = datetime.datetime.now()
         timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
         display_until = (now + datetime.timedelta(days=display_days)).strftime("%Y-%m-%d %H:%M:%S")
         
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO updates (title, content, timestamp, display_until) 
-            VALUES (?, ?, ?, ?)
-        ''', (title, content, timestamp, display_until))
-        update_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        
-        flash('Update notification created successfully!')
-        
-        # Add a flag to the response to trigger browser notifications
-        if send_notification:
-            # Create a notification record in the session
-            session['notify_users'] = {
-                'id': update_id,
-                'title': title, 
-                'content': content
-            }
-        
-        return redirect(url_for('admin'))
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO updates (title, content, timestamp, display_until) 
+                VALUES (?, ?, ?, ?)
+            ''', (title, content, timestamp, display_until))
+            update_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            flash(f'Update notification created successfully! Will be displayed for {display_days} days.')
+            
+            # Add a flag to the response to trigger browser notifications
+            if send_notification:
+                # Create a notification record in the session
+                session['notify_users'] = {
+                    'id': update_id,
+                    'title': title, 
+                    'content': content,
+                    'display_until': display_until
+                }
+            
+            return redirect(url_for('admin'))
+        except Exception as e:
+            flash(f'Error creating notification: {str(e)}')
+            return redirect(url_for('create_update'))
     
     return render_template('create_update.html')
 
-# New route to check for notifications to be sent
+@app.route('/admin/view_updates', methods=['GET'])
+@admin_required
+def view_updates():
+    """View all updates/notifications"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT *, 
+                   CASE 
+                       WHEN display_until > datetime('now') THEN 'Active'
+                       ELSE 'Expired'
+                   END as status
+            FROM updates 
+            ORDER BY timestamp DESC
+        ''')
+        updates = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return render_template('admin_updates.html', updates=updates)
+    except Exception as e:
+        flash(f'Error loading updates: {str(e)}')
+        return redirect(url_for('admin'))
+
+@app.route('/admin/delete_update/<int:update_id>', methods=['POST'])
+@admin_required
+def delete_update(update_id):
+    """Delete an update/notification"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM updates WHERE id = ?", (update_id,))
+        conn.commit()
+        conn.close()
+        
+        flash('Update deleted successfully!')
+    except Exception as e:
+        flash(f'Error deleting update: {str(e)}')
+    
+    return redirect(url_for('view_updates'))
+
+@app.route('/get_active_updates', methods=['GET'])
+def get_active_updates():
+    """Get all currently active updates"""
+    try:
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM updates 
+            WHERE display_until > ? 
+            ORDER BY timestamp DESC
+        ''', (now,))
+        updates = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return jsonify({'updates': updates})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/check_notifications')
 def check_notifications():
     # Check if there are any notifications to be sent
@@ -390,7 +460,13 @@ def get_latest_update():
         conn.close()
         
         if update:
-            return dict(update)
+            update_dict = dict(update)
+            # Calculate days remaining
+            display_until = datetime.datetime.strptime(update_dict['display_until'], "%Y-%m-%d %H:%M:%S")
+            now_dt = datetime.datetime.now()
+            days_remaining = (display_until - now_dt).days
+            update_dict['days_remaining'] = max(0, days_remaining)
+            return update_dict
         return None
     except Exception as e:
         print(f"Error getting latest update: {e}")
