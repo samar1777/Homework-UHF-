@@ -9,7 +9,7 @@ import base64
 import datetime
 
 # Server URL configuration - update with your PythonAnywhere URL
-SERVER_URL = 'https://clientserver.pythonanywhere.com'
+SERVER_URL = 'https://homeworkserver.pythonanywhere.com/'
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
