@@ -9,7 +9,7 @@ import base64
 import datetime
 
 # Server URL configuration - update with your PythonAnywhere URL
-SERVER_URL = 'https://homeworkserver.pythonanywhere.com/'
+SERVER_URL = 'https://clientserver.pythonanywhere.com'
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -170,21 +170,23 @@ def admin():
             
             return redirect(url_for('admin'))
     
-    # Get the list of subjects from the server or use default subjects
+    # Always use the complete list of default subjects for admin upload form
     default_subjects = ['Mathematics', 'Science', 'Economics', 'Geography', 'History', 'Civics', 'Hindi', 'English', 'IT']
+    subjects = default_subjects.copy()
+    
+    # Get additional subjects from server if any
     try:
         response = requests.get(f"{SERVER_URL}/api/subjects")
         if response.status_code == 200:
             server_subjects = response.json().get('subjects', [])
-            # Only use server subjects if the list is not empty
-            if server_subjects and len(server_subjects) > 1:
-                subjects = server_subjects
-            else:
-                subjects = default_subjects
+            # Add any new subjects from server that aren't in default list
+            for server_subject in server_subjects:
+                if server_subject not in subjects:
+                    subjects.append(server_subject)
         else:
-            subjects = default_subjects
-    except:
-        subjects = default_subjects
+            print(f"Failed to get subjects from server: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching subjects: {e}")
     
     # Get all pending requests
     conn = sqlite3.connect(DB_PATH)
